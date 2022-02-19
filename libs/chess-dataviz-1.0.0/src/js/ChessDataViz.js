@@ -1,8 +1,8 @@
-import * as util from './util';
-import {EvalAndTime} from './EvalAndTime';
-import {HeatMap} from './HeatMap';
-import {Openings} from './Openings';
-import {MovePaths} from './MovePaths';
+import * as util from './util.js';
+import {EvalAndTime} from './EvalAndTime.js';
+import {HeatMap} from './HeatMap.js';
+import {Openings} from './Openings.js';
+import {MovePaths} from './MovePaths.js';
 
 export var ChessDataViz = {
 	EvalAndTime,
@@ -11,5 +11,7 @@ export var ChessDataViz = {
 	MovePaths,
 	util
 };
+
+
 
 window.ChessDataViz = ChessDataViz;

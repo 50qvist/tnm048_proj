@@ -3,6 +3,7 @@
 let _ = require('lodash');
 
 class Openings {
+	
 	constructor() {
 		this.data = {
 			san: 'start',
@@ -11,6 +12,7 @@ class Openings {
 	}
 
 	update(moves) {
+
 		let ref = this.data.children;
 
 		moves.forEach(move => {

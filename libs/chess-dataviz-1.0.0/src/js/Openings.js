@@ -4,7 +4,6 @@
 import debug from 'debug';
 import _ from 'lodash';
 
-let log = debug('cdv:Openings');
 
 export class Openings {
 	constructor(selector, options, data) {

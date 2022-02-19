@@ -13623,7 +13623,7 @@ var Openings = (function () {
 		this._options = _lodash2.default.merge({}, defaultOptions, options);
 
 		//event dispatcher
-		this.dispatch = d3.dispatch('mouseenter', 'mousemove', 'mouseleave');
+		this.dispatch = d3.dispatch('mouseenter', 'mousemove', 'mouseleave', 'click');
 
 		this._partition = d3.layout.partition().sort(null).value(function (d) {
 			return d.count;
@@ -13697,6 +13697,17 @@ var Openings = (function () {
 
 				var moves = _lodash2.default.pluck(parents, 'san');
 				_this.dispatch.mouseenter(d, moves);
+			})
+      arcs.on('click', function (d, i) {
+				var parents = getParents(d);
+
+				arcs.style('opacity', 0.3);
+				arcs.filter(function (node) {
+					return parents.indexOf(node) > -1;
+				}).style('opacity', 1);
+
+				var moves = _lodash2.default.pluck(parents, 'san');
+				_this.dispatch.click(d, moves);
 			}).on('mousemove', function () {
 				_this.dispatch.mousemove();
 			}).on('mouseleave', function () {
