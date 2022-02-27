@@ -1,0 +1,137 @@
+<head>
+  <script src="//unpkg.com/d3"></script>
+  <script src="//unpkg.com/icicle-chart"></script>
+
+  <link rel="../../src" href="icicle.css">
+
+  <style>body { margin: 0 }</style>
+</head>
+<body>
+  <div id="chart"></div>
+
+  <script type="module">
+    
+    const color = d3.scaleOrdinal(d3.schemePaired);
+    const startColors = ["#800000",
+    "#911eb4",
+    "#42d4f4",
+    "#bfef45",
+    "#000075",
+    "#e6194B",
+    "#dcbeff",
+    "#ffe119",
+    "#aaffc3",
+    "#f58231",
+    "#469990",
+    "#ffd8b1",
+    "#4363d8"]
+
+    //https://ebemunk.com/chess-dataviz/data/wrc.json
+    /*
+    fetch('https://ebemunk.com/chess-dataviz/data/wrc.json').then(res => res.json()).then(data => {
+      console.log(data.openings)
+      while(data.openings.children.length > startColors.length){
+        console.log(startColors.length)
+        startColors.push(rgbToHex(Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)));
+      }
+
+
+      let chart = Icicle()
+        .data(data.openings)
+        .sort((a,b) => b.data.count - a.data.count)
+        .label((d, node) => d.san)
+        .size('count')
+        .color((d, parent) => getColor(d,parent))
+        .tooltipContent((d, node) => `Size: <i>${node.value}</i>`)
+        .excludeRoot(true)
+        (document.getElementById('chart'));
+    });*/
+    
+ fetch('data.json').then(res => res.json()).then(data => {
+      
+      data = JSON.parse(data)
+
+      while(data.children.length > startColors.length){
+        startColors.push(rgbToHex(Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)));
+      }
+
+      let chart = Icicle()
+        .data(data)
+        .sort((a,b) => b.data.count - a.data.count)
+        .label((d, node) => d.san)
+        .size((d, node)=>d.count)
+        .color((d, parent) => getColor(d,parent))
+        .tooltipContent((d, node) => `Count: <i>${d.count}</i>`)
+        .minSegmentWidth(3)
+        .excludeRoot(true)
+        (document.getElementById('chart'));
+      
+    });
+
+   /*
+    fetch('flare.json').then(res => res.json()).then(data => {
+      console.log(data)
+      Icicle()
+        .data(data)
+        .label('name')
+        .size('size')
+        .color((d, parent) => getColor(d,parent))
+        .tooltipContent((d, node) => `Size: <i>${node.value}</i>`)
+        (document.getElementById('chart'));
+    });
+*/
+
+    function getColor(iThis, iParent){
+
+      if(iParent == null){
+        return(rgbToHex(0,0,255))
+      }
+
+      let it = iParent;
+
+      while(it !== null && it.parent !== null && it.parent.parent !== null){
+        it = it.parent;
+      }
+      if(iParent.depth === 0){
+        if(iThis.__dataNode.id<startColors.length){
+          return startColors[iThis.__dataNode.id];
+        }
+        else{
+          return Math.floor(Math.random()*16777215).toString(16);
+        }
+      }
+      else{
+        return alternateFadeByDepth(iThis, startColors[it.id])
+      }
+      return rgbToHex(255,0,0)
+    }
+
+    function alternateFadeByDepth(iThis, startColor){
+      let tRGB = hexToRgb(startColor);
+      if((iThis.__dataNode.depth-1)%2 == 0){
+        return startColor;
+      } 
+      else{
+        return rgbToHex(Math.floor(tRGB.r/2),Math.floor(tRGB.g/2),Math.floor(tRGB.b/2))
+      }
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if(result){
+          var r= parseInt(result[1], 16);
+          var g= parseInt(result[2], 16);
+          var b= parseInt(result[3], 16);
+          return {
+            r,b,g
+          };
+      } 
+      return null;
+    }
+
+  </script>
+</body>

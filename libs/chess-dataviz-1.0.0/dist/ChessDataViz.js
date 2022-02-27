@@ -13608,6 +13608,19 @@ var Openings = (function () {
 	function Openings(selector, options, data) {
 		_classCallCheck(this, Openings);
 
+
+    //var svg = d3.select("#openings").append("svg").attr("width", 800).attr("height", 200)
+
+// Add the path using this helper function
+    
+    /*
+    svg.append('rect')
+    .attr('x', i*20)
+    .attr('y', i*20)
+    .attr('width', 600)
+    .attr('height', 40)
+    .attr('stroke', 'black')
+    .attr('fill', '#69a3b2');*/
 		//container setup
 		this.container = d3.select(selector);
 
@@ -13628,12 +13641,15 @@ var Openings = (function () {
 		this._partition = d3.layout.partition().sort(null).value(function (d) {
 			return d.count;
 		});
+    
 
 		var radius = Math.min(this._options.width, this._options.height) / 2;
 
+    var radius = Math.min(this._options.width, this._options.height) / 2;
 		var xScale = d3.scale.linear().range([0, 2 * Math.PI]);
 		var yScale = d3.scale.sqrt().range([0, radius]);
-
+    
+    
 		this._arc = d3.svg.arc().startAngle(function (d) {
 			return Math.max(0, Math.min(2 * Math.PI, xScale(d.x)));
 		}).endAngle(function (d) {
@@ -13645,6 +13661,7 @@ var Openings = (function () {
 		});
 
 		this.dataContainer = this.container.append('svg').attr('width', this._options.width).attr('height', this._options.height).append('g').attr('transform', 'translate(' + this._options.width / 2 + ',' + this._options.height / 2 + ')');
+    
 
 		if (data) {
 			this.data(data);
@@ -13677,16 +13694,60 @@ var Openings = (function () {
 			var nodes = this._partition.nodes(this._data).filter(function (d) {
 				return d.dx > _this._options.arcThreshold;
 			});
-
+      
+      var rects = this.dataContainer.selectAll(".rect").data(nodes);
 			var arcs = this.dataContainer.selectAll('.arc').data(nodes);
+      /*
+      let counter = 0;
+      nodes.forEach(d => {
+        counter = counter +1;
+        d3.select("#openings").append("svg").attr("width", 800).attr("height", 200).append('rect')
+        .attr('x', counter*20)
+        .attr('y', counter*20)
+        .attr('width', 600)
+        .attr('height', 40)
+        .attr('stroke', 'black')
+        .attr('fill', '#69a3b2');
+        })*/
 
+
+      rects.enter().append('path').attr('display', function (d) {
+        console.log(d)
+        return d.depth ? null : 'none';
+      }).attr('fill-rule', 'evenodd').attr('class', 'rect');
+    
+      var blockWidth = 50;
+
+      var start = 1182;
+      var totalHeight = 500;
+
+      
+
+      rects.each(function (d) {
+        var i = d;
+
+        d3.select("#icicle").append("svg").attr("width", blockWidth).attr("height", totalHeight*d.value/start).append('rect')
+        .attr('x', 20)
+        .attr('y', 0)
+        .attr('width', blockWidth)
+        .attr('height', totalHeight*d.value/start)
+        .attr('stroke', 'black')
+        .attr('fill', '#69a3b2')
+        .attr('position', 'absolute')
+        .attr('right', 50*d.depth)
+        .on('click', function(k,i){
+          console.log(d)
+        });
+      }).style('fill', fillColor);
+      
+  
 			arcs.enter().append('path').attr('display', function (d) {
 				return d.depth ? null : 'none';
 			}).attr('d', this._arc).attr('fill-rule', 'evenodd').attr('class', 'arc').each(function (d) {
 				this.x0 = 0;
 				this.dx0 = 0;
 			}).style('fill', fillColor);
-
+      
 			arcs.on('mouseenter', function (d, i) {
 				var parents = getParents(d);
 
@@ -13699,8 +13760,8 @@ var Openings = (function () {
 				_this.dispatch.mouseenter(d, moves);
 			})
       arcs.on('click', function (d, i) {
+        console.log(d)
 				var parents = getParents(d);
-
 				arcs.style('opacity', 0.3);
 				arcs.filter(function (node) {
 					return parents.indexOf(node) > -1;
@@ -13714,7 +13775,8 @@ var Openings = (function () {
 				arcs.style('opacity', 1);
 
 				_this.dispatch.mouseleave();
-			}).transition().duration(500).attrTween('d', function (d) {
+			})
+      .transition().duration(500).attrTween('d', function (d) {
 				var interpolate = d3.interpolate({
 					x: this.x0,
 					dx: this.dx0
@@ -13730,10 +13792,12 @@ var Openings = (function () {
 			}).style('fill', fillColor);
 
 			arcs.exit().remove();
+      rects.exit().remove();
 
 			var sanText = this.dataContainer.selectAll('.san').data(nodes);
 			sanText.enter().append('text').attr('class', 'san').attr('dy', '6').attr('text-anchor', 'middle');
 
+      
 			sanText.transition().duration(500).attr('transform', function (d) {
 				return 'translate(' + _this._arc.centroid(d) + ')';
 			}).text(function (d) {
